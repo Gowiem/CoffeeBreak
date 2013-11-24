@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+
+  "name": "CoffeeBreak",
+  "description": "Convert CoffeeScript files to JavaScript on GitHub",
+  "version": "1.0",
+
+  "permissions": [],
+
+  "content_scripts": [
+    {
+      "matches": ["*.github.com/*/blob/*/*.coffee"],
+      "css": ["style.css"],
+      "js": ["content_script.js"]
+    }
+  ],
+}
