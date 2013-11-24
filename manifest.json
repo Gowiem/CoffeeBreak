@@ -7,14 +7,30 @@
 
   "permissions": [
     "http://coffee-break-server.herokuapp.com/",
+    "https://github.com/login/oauth/access_token",
     "https://github.com/api/*"
   ],
+
+  "web_accessible_resources": [
+    "oauth2/oauth2.html"
+  ],
+
+  "browser_action": {
+    "default_title": "OAuth 2.0",
+    "default_popup": "options.html"
+  },
+  "options_page": "options.html",
 
   "content_scripts": [
     {
       "matches": ["*://*.github.com/*/blob/*/*.coffee"],
       "css": ["style.css"],
-      "js": ["jquery-2.0.3.min.js", "content_script.js"]
+      "js": ["jquery-2.0.3.min.js", "oauth2/oauth2.js", "oauth2/adapters/github.js", "content_script.js"]
+    },
+    {
+      "matches": ["https://github.com/robots.txt*"],
+      "js": ["oauth2/oauth2_inject.js"],
+      "run_at": "document_start"
     }
   ]
 }
