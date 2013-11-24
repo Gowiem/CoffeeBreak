@@ -9,9 +9,9 @@
 
   "content_scripts": [
     {
-      "matches": ["*.github.com/*/blob/*/*.coffee"],
+      "matches": ["*://*.github.com/*/blob/*/*.coffee"],
       "css": ["style.css"],
-      "js": ["content_script.js"]
+      "js": ["jquery-2.0.3.min.js", "content_script.js"]
     }
-  ],
+  ]
 }
