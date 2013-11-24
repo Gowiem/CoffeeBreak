@@ -4,7 +4,8 @@
 var actionsContainer = $('#files .actions'),
     convertButton = $('<a></a>').addClass('minibutton empty-icon')
                                 .attr('id', 'coffee-break-convert')
-                                .text('Convert CoffeeScript');
+                                .text('Convert CoffeeScript'),
+    serverUrl = 'http://coffee-break-server.herokuapp.com/';
 
 actionsContainer.append(convertButton);
 
@@ -28,7 +29,7 @@ $('#coffee-break-convert').on('click', function() {
 var postCoffeeToServer = function(rawCoffee) {
   console.log("Posting rawCoffee to Server");
   $.ajax({
-    url: 'http://localhost:4567/',
+    url: serverUrl,
     type: 'POST',
     data: { 'content': rawCoffee },
     success: function(response) {
