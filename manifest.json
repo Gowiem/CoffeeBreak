@@ -16,19 +16,14 @@
   ],
 
   "web_accessible_resources": [
-    "oauth2/oauth2.html"
+    "oauth2/oauth2.html",
+    "images/spinner.gif"
   ],
-
-  "browser_action": {
-    "default_title": "OAuth 2.0",
-    "default_popup": "options.html"
-  },
-  "options_page": "options.html",
 
   "content_scripts": [
     {
       "matches": ["*://*.github.com/*/blob/*/*.coffee"],
-      "css": ["style.css"],
+      "css": ["coffee_break.css"],
       "js": ["jquery-2.0.3.min.js", "oauth2/oauth2.js", "oauth2/adapters/github.js", "content_script.js"]
     },
     {

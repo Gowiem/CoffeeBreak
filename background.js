@@ -9,23 +9,25 @@ var github = new OAuth2('github', {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    github.authorize();
-    console.log('request: ', request, " - Github is authorized: ", github.hasAccessToken());
-
-    if (request['content']) {
-      var newGistUrl = 'https://api.github.com/gists?access_token=' + github.getAccessToken();
-      $.ajax({
-        url: newGistUrl,
-        type: 'POST',
-        data: JSON.stringify(request['content']),
-        success: function(response) {
-          chrome.tabs.create({ url: response['html_url'], active: true });
-        },
-        error: function(response) {
-          console.log('Error: failed to create gist, response: ', response);
-        }
-      })
-    }
+    github.authorize(function() {
+      console.log("sendResponse: ", sendResponse);
+      console.log("GitHub Authorized: ", github.hasAccessToken());
+      if (request['content'] && github.hasAccessToken()) {
+        var newGistUrl = 'https://api.github.com/gists?access_token=' + github.getAccessToken();
+        $.ajax({
+          url: newGistUrl,
+          type: 'POST',
+          data: JSON.stringify(request['content']),
+          success: function(response) {
+            sendResponse({});
+            chrome.tabs.create({ url: response['html_url'], active: true });
+          },
+          error: function(response) {
+            console.log('Error: failed to create gist, response: ', response);
+          }
+        })
+      }
+    });
   }
 );
 
