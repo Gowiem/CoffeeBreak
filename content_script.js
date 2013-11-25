@@ -48,8 +48,9 @@ var postCoffeeToServer = function(rawCoffee) {
     type: 'POST',
     data: { 'content': rawCoffee },
     success: function(response) {
-      var newGist = new Gist(response);
-      sendGistToBackground(newGist);
+      // response is the converted coffeescript => js or js => coffeescript string
+      var gistJSON = constructGistJSON(response);
+      sendGistToBackground(gistJSON);
     },
     error: function(response) {
       alert("Sorry, an error occured during the conversion request. Please try again later.");
@@ -57,8 +58,23 @@ var postCoffeeToServer = function(rawCoffee) {
   });
 }
 
-var sendGistToBackground = function(newGist) {
-  chrome.runtime.sendMessage({ content: newGist.toJSON() }, function(response) {
+// Creates the JSON object which api.github.com/posts expects from the given
+// convertedScript string.
+var constructGistJSON = function(convertedScript) {
+  // Grab the current filename from the dom and strip .coffee for the new filename
+  var filename = $('.file-navigation .final-path').html(),
+      newFilename = filename.replace(/(\w*)\..*/, '$1.js'),
+      files = {};
+  files[newFilename] = { 'content': convertedScript };
+  return {
+    'description': filename + ' => ' + newFilename + ' conversion by CoffeeBreak',
+    'public': true,
+    'files' : files
+  }
+}
+
+var sendGistToBackground = function(gistJSON) {
+  chrome.runtime.sendMessage({ content: gistJSON }, function(response) {
     console.log("Response from sendGistToBg - response: ", response);
     stopLoadingAnimation();
   });
@@ -71,32 +87,5 @@ var startLoadingAnimation = function() {
 var stopLoadingAnimation = function() {
   // TIL $.text clears html elements too...
   $convertButton.attr('disabled', true).text('CoffeeScript Coverted');
-}
-
-function Gist(content) {
-
-  // Grab the current filename from the dom and strip .coffee for the new filename
-  this.filename = $('.file-navigation .final-path').html();
-  this.newFilename = this.filename.replace(/(\w*)\..*/, '$1.js');
-
-  var constructFiles = function(newFilename, content) {
-    var files = {};
-    files[newFilename] = { 'content': content };
-    return files;
-  }
-
-  this.files = constructFiles(this.newFilename, content);
-
-  this.description = this.filename + ' => ' + this.newFilename + ' conversion by CoffeeBreak';
-  this.public = true;
-  this.content = content;
-
-  this.toJSON = function() {
-    return {
-      'description': this.description,
-      'public': true,
-      'files' : this.files
-    }
-  }
 }
 
