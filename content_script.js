@@ -9,13 +9,6 @@ var actionsContainer = $('#files .actions'),
 
 actionsContainer.append(convertButton);
 
-
-var github = new OAuth2('github', {
-  client_id: 'a6b7b7f807a5c49b2751',
-  client_secret: '635eebc7b21017812d34b93c41c9dead7c2188e8',
-  api_scope: 'gist'
-});
-
 $('#coffee-break-convert').on('click', function() {
   var currentUrl = $(location).attr('href'),
       rawUrl = currentUrl.replace(/^(.*\/)blob\/(.*)$/, '$1$2')
@@ -39,7 +32,7 @@ var postCoffeeToServer = function(rawCoffee) {
     type: 'POST',
     data: { 'content': rawCoffee },
     success: function(response) {
-      createGistWithCompiledJs(response);
+      sendCompiledToBackground(response);
     },
     error: function(response) {
       console.log("Error - response: ", response);
@@ -47,10 +40,9 @@ var postCoffeeToServer = function(rawCoffee) {
   });
 }
 
-var createGistWithCompiledJs(compiled) {
-  github.authorize(function() {
-    console.log("GitHub authorized callback");
+var sendCompiledToBackground = function(compiled) {
+  chrome.runtime.sendMessage({ content: compiled }, function(response) {
+    console.log(response);
   });
-  console.log("github is authorized: ", github.hasAccessToken());
 }
 

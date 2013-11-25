@@ -5,6 +5,10 @@
   "description": "Convert CoffeeScript files to JavaScript on GitHub",
   "version": "1.0",
 
+  "background": {
+    "page": "background.html"
+  },
+
   "permissions": [
     "http://coffee-break-server.herokuapp.com/",
     "https://github.com/login/oauth/access_token",

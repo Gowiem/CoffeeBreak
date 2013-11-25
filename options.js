@@ -1,3 +1,6 @@
+// Created by: Matt Gowie
+// Sunday, November 24th 2013
+
 var github = new OAuth2('github', {
   client_id: 'a6b7b7f807a5c49b2751',
   client_secret: '635eebc7b21017812d34b93c41c9dead7c2188e8',
@@ -13,9 +16,9 @@ $(document).ready(function() {
   function checkAuthorized() {
     console.log('checkAuthorized');
     if (github.hasAccessToken()) {
-      $('#status').text('authorized');
+      $('#status').text('Authorized');
     } else {
-      $('#status').text('Not Authorized x2');
+      $('#status').text('Not Authorized');
     }
   }
 
