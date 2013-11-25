@@ -1,7 +1,9 @@
 // Created by: Matt Gowie
 // Sunday, November 24th 2013
 
-var $spinner, $convertButton;
+var $spinner, 
+    $convertButton,
+    port = chrome.runtime.connect({name: "CoffeeBreak"});
 
 // Create the convert button, append it to the dom, and setup the click event
 $(document).ready(function() {
@@ -34,7 +36,7 @@ var retrieveRawCoffee = function() {
       postCoffeeToServer(response);
     },
     error: function(response) {
-      console.log("Error - response: ", response);
+      alert("Sorry, CoffeeBreak failed to retrieve the source of this file. Please try again later.");
     }
   });
 }
@@ -74,18 +76,25 @@ var constructGistJSON = function(convertedScript) {
 }
 
 var sendGistToBackground = function(gistJSON) {
-  chrome.runtime.sendMessage({ content: gistJSON }, function(response) {
-    console.log("Response from sendGistToBg - response: ", response);
+  port.onMessage.addListener(function(message) {
     stopLoadingAnimation();
+    if (message['status'] === 'failure') {
+      alert('Sorry, CoffeeBreak failed to create the converted gist. Please try again later.');
+    }
   });
+  port.postMessage({ content: gistJSON });
 }
 
 var startLoadingAnimation = function() {
-  $convertButton.text('Converting CoffeeScript').append($spinner);
+  $convertButton.text('Converting CoffeeScript')
+                .append($spinner);
 }
 
 var stopLoadingAnimation = function() {
   // TIL $.text clears html elements too...
-  $convertButton.attr('disabled', true).text('CoffeeScript Coverted');
+  $convertButton.attr('disabled', 'true')
+                .addClass('disabled')
+                .unbind('click')
+                .text('CoffeeScript Coverted');
 }
 

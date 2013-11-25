@@ -7,29 +7,32 @@ var github = new OAuth2('github', {
   api_scope: 'gist'
 });
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+chrome.runtime.onConnect.addListener(function(port) {
+  console.assert(port.name == "CoffeeBreak");
+  port.onMessage.addListener(function(message) {
     github.authorize(function() {
       console.log("GitHub Authorized: ", github.hasAccessToken());
-      if (request['content'] && github.hasAccessToken()) {
-        postNewGist(request['content']);
+      if (message['content'] && github.hasAccessToken()) {
+        postNewGist(message['content'], port);
       }
     });
-  }
-);
+  });
+});
 
 // Constructs the newGistUrl w/ the Oauth access token and posts the given gistJSON
 // to api.github.com/gists
-var postNewGist = function(gistJSON) {
+var postNewGist = function(gistJSON, port) {
   var newGistUrl  = 'https://api.github.com/gists?access_token=' + github.getAccessToken();
   $.ajax({
     url: newGistUrl,
     type: 'POST',
     data: JSON.stringify(gistJSON),
     success: function(response) {
+      port.postMessage({ status: 'success' });
       chrome.tabs.create({ url: response['html_url'], active: true });
     },
     error: function(response) {
+      port.postMessage({ status: 'failure' });
       console.log('Error: failed to create gist, response: ', response);
     }
   });
