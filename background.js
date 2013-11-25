@@ -7,17 +7,25 @@ var github = new OAuth2('github', {
   api_scope: 'gist'
 });
 
-
-
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    github.authorize(function() {
-      console.log("GitHub authorized callback");
-    });
+    github.authorize();
     console.log('request: ', request, " - Github is authorized: ", github.hasAccessToken());
 
-    if (request) {
-      sendResponse({ content: "shred" });
+    if (request['content']) {
+      $.ajax({
+        url: 'https://api.github.com/gists',
+        type: 'POST',
+        data: JSON.stringify(request['content']),
+        success: function(response) {
+          console.log('success! response: ', response);
+          chrome.tabs.create({ url: response['html_url'], active: true });
+        },
+        error: function(response) {
+          console.log('Error: failed to create gist, response: ', response);
+        }
+      })
     }
   }
 );
+

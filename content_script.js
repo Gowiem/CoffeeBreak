@@ -26,13 +26,14 @@ $('#coffee-break-convert').on('click', function() {
 });
 
 var postCoffeeToServer = function(rawCoffee) {
-  console.log("Posting rawCoffee to Server");
+
   $.ajax({
     url: serverUrl,
     type: 'POST',
     data: { 'content': rawCoffee },
     success: function(response) {
-      sendCompiledToBackground(response);
+      var newGist = new Gist(response);
+      sendGistToBackground(newGist);
     },
     error: function(response) {
       console.log("Error - response: ", response);
@@ -40,9 +41,36 @@ var postCoffeeToServer = function(rawCoffee) {
   });
 }
 
-var sendCompiledToBackground = function(compiled) {
-  chrome.runtime.sendMessage({ content: compiled }, function(response) {
+var sendGistToBackground = function(newGist) {
+  chrome.runtime.sendMessage({ content: newGist.toJSON() }, function(response) {
     console.log(response);
   });
+}
+
+function Gist(content) {
+
+  // Grab the current filename from the dom and strip .coffee for the new filename
+  this.filename = $('.file-navigation .final-path').html();
+  this.newFilename = this.filename.replace(/(\w*)\..*/, '$1.js');
+
+  var constructFiles = function(filename, content) {
+    var files = {};
+    files[filename] = { 'content': content };
+    return files;
+  }
+
+  this.files = constructFiles(this.filename, content);
+
+  this.description = this.filename + ' => ' + this.newFilename + ' conversion by CoffeeBreak';
+  this.public = true;
+  this.content = content;
+
+  this.toJSON = function() {
+    return {
+      'description': this.description,
+      'public': true,
+      'files' : this.files
+    }
+  }
 }
 
