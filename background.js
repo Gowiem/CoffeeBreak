@@ -13,12 +13,12 @@ chrome.runtime.onMessage.addListener(
     console.log('request: ', request, " - Github is authorized: ", github.hasAccessToken());
 
     if (request['content']) {
+      var newGistUrl = 'https://api.github.com/gists?access_token=' + github.getAccessToken();
       $.ajax({
-        url: 'https://api.github.com/gists',
+        url: newGistUrl,
         type: 'POST',
         data: JSON.stringify(request['content']),
         success: function(response) {
-          console.log('success! response: ', response);
           chrome.tabs.create({ url: response['html_url'], active: true });
         },
         error: function(response) {

@@ -55,7 +55,7 @@ function Gist(content) {
 
   var constructFiles = function(filename, content) {
     var files = {};
-    files[filename] = { 'content': content };
+    files[this.newFilename] = { 'content': content };
     return files;
   }
 
